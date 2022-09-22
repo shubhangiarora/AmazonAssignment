@@ -1,0 +1,82 @@
+#Import Webdriver of Selenium to access the webdriver
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+# Import Keys from webdriver to use keystroke method in web browser
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
+import time
+import os
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+#driver = webdriver.Chrome("C:\Program Files\Google\Chrome\Application\chrome.exe")
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+driver.get("https://www.amazon.in/")
+driver.maximize_window()
+print(driver.title)
+'''accounts_Lists = driver.find_element(By.XPATH,'//*[contains(text(),"Account & Lists")]')
+accounts_Lists.click()
+email =driver.find_element(By.XPATH,"//input[@type='email']")
+email.send_keys('nikkiarora449@gmail.com')
+Continue_Btn= driver.find_element(By.XPATH, '//input[@id="continue"]')
+Continue_Btn.click()
+password = driver.find_element(By.XPATH, "//input[@type='password']")
+password.send_keys('Friday@002')
+SignIn = driver.find_element(By.XPATH, "//span[@id='auth-signin-button']")
+SignIn.click()'''
+# Check whether the searchbox is found or not
+loggedIn = driver.find_element(By.XPATH, "//input[@id='twotabsearchtextbox']").is_displayed()
+if loggedIn == True:
+    searchbox = driver.find_element(By.XPATH, "//input[@id='twotabsearchtextbox']")
+    searchbox.send_keys('bp machine')
+    searchbox.submit()
+    print("Search successfull")
+else:
+    print("Unable to login into amazon")
+    quit()
+item_names=[]
+time.sleep(3)
+titles = WebDriverWait(driver, 10).until(EC.visibility_of_all_elements_located((By.XPATH, "//h2[@class='a-size-mini a-spacing-none a-color-base s-line-clamp-2']")))
+prices = WebDriverWait(driver, 15).until(EC.visibility_of_all_elements_located((By.XPATH, "//a[@class='a-size-base a-link-normal s-underline-text s-underline-link-text s-link-style a-text-normal']")))
+ratings_reviews = WebDriverWait(driver, 10).until(EC.visibility_of_all_elements_located((By.XPATH, "//div[@class='a-row a-size-small']")))
+links = WebDriverWait(driver, 10).until(EC.visibility_of_all_elements_located((By.XPATH, "//h2[@class='a-size-mini a-spacing-none a-color-base s-line-clamp-2']//a/@href")))
+ratings=[]
+rev=[]
+links_list=[]
+for i in range(len(links)):
+    data = ratings_reviews[i].split(" ")
+    ratings.append(data[0])
+    rev.append(data[1])
+    links_list.append(links[i])            
+
+for index in range(len(titles[index])):
+    item_names.append(titles[index].text)
+while len(item_names)<100:
+    try:
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        next_button = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.XPATH, "//a[@class = 's-pagination-item s-pagination-next s-pagination-button s-pagination-separator']")))
+        next_button.location_once_scrolled_into_view
+        next_button.click()
+        titles = WebDriverWait(driver, 10).until(EC.visibility_of_all_elements_located((By.XPATH, "//span[@class='a-size-medium a-color-base a-text-normal']")))
+        #prices = WebDriverWait(driver, 15).until(EC.visibility_of_all_elements_located((By.XPATH, "//a[@class='a-size-base a-link-normal s-underline-text s-underline-link-text s-link-style a-text-normal']")))
+        ratings_reviews = WebDriverWait(driver, 10).until(EC.visibility_of_all_elements_located((By.XPATH, "//div[@class='a-row a-size-small']")))
+        links = WebDriverWait(driver, 10).until(EC.visibility_of_all_elements_located((By.XPATH, "//h2[@class='a-size-mini a-spacing-none a-color-base s-line-clamp-2']//a/@href")))
+        for i in range(len(links)):
+            data = ratings_reviews[i].split(" ")
+            ratings.append(data[0])
+            rev.append(data[1])
+            links_list.append(links[i])
+        
+        #prices = WebDriverWait(driver, 10).until(EC.visibility_of_all_elements_located((By.XPATH, "/span[@class='a-price-whole']")))
+        for title in titles:
+            item_names.append(title.text)
+    except:
+        pass
+#for item_name in item_names:
+print(item_name,links_list,ratings,reviews)
+os.system("taskkill \chromedriver.exe")
+#time.sleep(6)
+print(len(item_names))
+#Username_TxtBox("abcdefghlkjl");
+driver.close()
